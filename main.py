@@ -118,8 +118,9 @@ for steag in cuvinte:
         pygame.quit()
     else:
         if guess_counter < 3:
-            print('wrong try again\n')
+            print('Gresit, incearca din nou!\n')
             guess_counter += 1
         else:
             pygame.quit()
     print(f"Scorul tău este: {score}") 
+
