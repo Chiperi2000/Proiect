@@ -70,8 +70,8 @@ def locatie(locatie_steag):
 
 
 def raspunsuri(voce_inregistrata):
-    if 'Care este numele tău' in voce_inregistrata:
-        print("Numele meu este ....")
+    if 'Cine ești tu' in voce_inregistrata:
+        print("Eu sunt asistentul tău personal")
 
     if 'Cât este ceasul' in voce_inregistrata:
         print(ctime())
