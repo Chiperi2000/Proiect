@@ -32,13 +32,13 @@ def inregistrare_audio(caută=False):
 
 def inregistrare_joc():
     with sr.Microphone() as microfon:
-        print('Care este tara?')
+        print('\nCare este tara?')
         audio = inregistrare.record(microfon, duration=5)
     try:
         text = inregistrare.recognize_google(audio, language='ro-RO')
         print(text)
     except sr.UnknownValueError:
-        print('Scuze, nu am inteles!')
+        print('')
         text = ''
     except sr.RequestError:
         print('Momentan indisponibil!')
@@ -46,28 +46,27 @@ def inregistrare_joc():
 
 def locatie(locatie_steag):
     fereastra_joc = pygame.display.set_mode((400, 500))
-    steaguri_loc = [x for x in glob(locatie_steag +"\\*.PNG")]
+    steaguri_loc = [x for x in glob(locatie_steag + "\\*.PNG")]
     numele = [x.split(".")[0] for x in glob(locatie_steag + "\\*.PNG")]
     steaguri = {k: v for k, v in zip(steaguri_loc, numele)}
     cuvinte = list(steaguri.keys())
     shuffle(cuvinte)
+    nr_cuvinte = len(cuvinte)
     punctaj = 0
     for steag in cuvinte:
         fereastra_joc.fill((220, 220, 220))
-        incercari = 0
         imagine = pygame.image.load(os.path.join('', steag))
         fereastra_joc.blit(imagine, (50, 50))
         pygame.display.update()
-    if inregistrare_joc() == steaguri[steag].split("\\")[1]:
-        print('Foarte bine!\n---------------------\n\n')
-        punctaj += 1
-    else:
-        incercari < 1
-        print('Gresit, incearca din nou\n')
-        incercari += 1
-    if inregistrare_joc() == 'nu mai vreau să joc':
-        pygame.quit()
-    print(f"Scorul tău este: {punctaj}")
+        if inregistrare_joc() == 'stop':
+            pygame.quit()
+        else:
+            if inregistrare_joc() == steaguri[steag].split("\\")[1]:
+                print('Foarte bine!\n---------------------\n\n')
+                punctaj += 1
+            else:
+                print("Raspuns gresit!")
+            print(f"Scorul tău este: {punctaj}/{nr_cuvinte}" )
 
 
 def raspunsuri(voce_inregistrata):
@@ -83,17 +82,43 @@ def raspunsuri(voce_inregistrata):
         webbrowser.get().open(url)
         print('Rezultate gasite pentru: ' + caută)
 
-    if 'hai să ne jucăm' in voce_inregistrata:
+    if 'Vreau să mă joc' in voce_inregistrata:
         joc = inregistrare_audio('Ce vrei sa te joci?\n 1.Ghicește steagul')
         if joc == 'Ghicește steagul':
-            locatie_steag = inregistrare_audio('Steaguri din regiunea:\n 1.Europa \n 2.Asia')
-            if locatie_steag == 'Europa':
+            locatie_steag = inregistrare_audio('Steaguri din regiunea:\n 1.Europa \n 2.America de Nord \n 3.America de Sud')
+            while locatie_steag == 'Europa':
                 locatie(locatie_steag)
-            if locatie_steag == 'Asia':
-                locatie(locatie_steag)    
+                break
+            while locatie_steag == 'America de Nord':
+                locatie(locatie_steag)
+                break    
+            while locatie_steag == 'America de Sud':
+                locatie(locatie_steag)
+                break
                 
 
 voce_inregistrata = inregistrare_audio()
 raspunsuri(voce_inregistrata)
 
 
+# fereastra_joc = pygame.display.set_mode((400, 500))
+# steaguri_loc = [x for x in glob("America de Nord\\*.PNG")]
+# numele = [x.split(".")[0] for x in glob("America de Nord\\*.PNG")]
+# steaguri = {k: v for k, v in zip(steaguri_loc, numele)}
+# cuvinte = list(steaguri.keys())
+# shuffle(cuvinte)
+# nr_cuvinte = len(cuvinte)
+# punctaj = 0
+# for steag in cuvinte:
+#     fereastra_joc.fill((220, 220, 220))
+#     incercari = 0
+#     imagine = pygame.image.load(os.path.join('', steag))
+#     fereastra_joc.blit(imagine, (50, 50))
+#     pygame.display.update()
+#     if inregistrare_joc() == steaguri[steag].split("\\")[1]:
+#         print('Foarte bine!\n---------------------\n\n')
+#         punctaj += 1
+#     else:
+#         print("Raspuns gresit!")
+#         print("Raspuns corect:", steaguri[steag].split("\\")[1])
+#     print(f"Scorul tău este: {punctaj}/{nr_cuvinte}" )
