@@ -83,7 +83,7 @@ def raspunsuri(voce_inregistrata):
         print('Rezultate gasite pentru: ' + caută)
 
     if 'Vreau să mă joc' in voce_inregistrata:
-        joc = inregistrare_audio('Ce vrei sa te joci?\n 1.Ghicește steagul')
+        joc = inregistrare_audio('Ce vrei sa te joci?\n1.Ghicește steagul')
         if joc == 'Ghicește steagul':
             locatie_steag = inregistrare_audio('Steaguri din regiunea:\n 1.Europa \n 2.America de Nord \n 3.America de Sud')
             while locatie_steag == 'Europa':
@@ -99,26 +99,3 @@ def raspunsuri(voce_inregistrata):
 
 voce_inregistrata = inregistrare_audio()
 raspunsuri(voce_inregistrata)
-
-
-# fereastra_joc = pygame.display.set_mode((400, 500))
-# steaguri_loc = [x for x in glob("America de Nord\\*.PNG")]
-# numele = [x.split(".")[0] for x in glob("America de Nord\\*.PNG")]
-# steaguri = {k: v for k, v in zip(steaguri_loc, numele)}
-# cuvinte = list(steaguri.keys())
-# shuffle(cuvinte)
-# nr_cuvinte = len(cuvinte)
-# punctaj = 0
-# for steag in cuvinte:
-#     fereastra_joc.fill((220, 220, 220))
-#     incercari = 0
-#     imagine = pygame.image.load(os.path.join('', steag))
-#     fereastra_joc.blit(imagine, (50, 50))
-#     pygame.display.update()
-#     if inregistrare_joc() == steaguri[steag].split("\\")[1]:
-#         print('Foarte bine!\n---------------------\n\n')
-#         punctaj += 1
-#     else:
-#         print("Raspuns gresit!")
-#         print("Raspuns corect:", steaguri[steag].split("\\")[1])
-#     print(f"Scorul tău este: {punctaj}/{nr_cuvinte}" )
