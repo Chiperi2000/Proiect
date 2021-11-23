@@ -16,10 +16,9 @@ inregistrare = sr.Recognizer()
 def inregistrare_audio(caută=False):
     with sr.Microphone() as microfon:
         if caută:
-            print(caută)
+            voce_bot(caută)
         print("Se elimina zgomotul de fundal, va rugam asteptati!")
         inregistrare.adjust_for_ambient_noise(microfon, duration=1)
-        voce_bot('Cu ce te pot ajuta?')
         voce_inregistrata = ''
         try:
             date_audio = inregistrare.listen(microfon, 10, 3)
@@ -68,23 +67,21 @@ def locatie(locatie_steag):
         imagine = pygame.image.load(os.path.join('', steag))
         fereastra_joc.blit(imagine, (50, 50))
         pygame.display.update()
-        if inregistrare_joc() == 'stop':
-            pygame.quit()
+        if inregistrare_joc() == steaguri[steag].split("\\")[1]:
+            print('Foarte bine!\n---------------------\n\n')
+            punctaj += 1
         else:
-            if inregistrare_joc() == steaguri[steag].split("\\")[1]:
-                print('Foarte bine!\n---------------------\n\n')
-                punctaj += 1
-            else:
-                print("Raspuns gresit!")
-            print(f"Scorul tău este: {punctaj}/{nr_cuvinte}" )
+            print("Raspuns gresit!")
+            print("Raspuns corect:", steaguri[steag].split("\\")[1])
+        print(f"Scorul tău este: {punctaj}/{nr_cuvinte}" )
 
 
 def raspunsuri(voce_inregistrata):
     if 'cine ești tu' in voce_inregistrata:
         voce_bot("Eu sunt asistentul tău personal!")
 
-    if 'Cât este ceasul' in voce_inregistrata:
-        print(ctime())
+    if 'cât este ceasul' in voce_inregistrata:
+        voce_bot(ctime())
 
     if 'caută' in voce_inregistrata:
         caută = inregistrare_audio('Ce vrei sa caut?')
@@ -107,6 +104,8 @@ def raspunsuri(voce_inregistrata):
                 break
 
 
+time.sleep(1)
+voce_bot('Cu ce te pot ajuta?')
 voce_inregistrata = inregistrare_audio()
 raspunsuri(voce_inregistrata)
   
