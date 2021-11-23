@@ -6,6 +6,9 @@ import speech_recognition as sr
 from random import shuffle
 from time import ctime, daylight
 import webbrowser
+from playsound import playsound
+import random
+from gtts import gTTS
 
 inregistrare = sr.Recognizer()
 
@@ -16,19 +19,26 @@ def inregistrare_audio(caută=False):
             print(caută)
         print("Se elimina zgomotul de fundal, va rugam asteptati!")
         inregistrare.adjust_for_ambient_noise(microfon, duration=1)
-        print('Te ascult...')
+        voce_bot('Cu ce te pot ajuta?')
         voce_inregistrata = ''
         try:
             date_audio = inregistrare.listen(microfon, 10, 3)
-            voce_inregistrata = inregistrare.recognize_google(
-                date_audio, language='ro-Ro')
+            voce_inregistrata = inregistrare.recognize_google(date_audio, language='ro-Ro')
             print(voce_inregistrata)
         except sr.UnknownValueError:
-            print('Scuze, nu am inteles!')
+            voce_bot('Scuze, nu am înțeles!')
         except sr.RequestError:
-            print('Momentan indisponibil!')
+            voce_bot('Momentan indisponibil!')
         return voce_inregistrata
 
+def voce_bot(mesaj_scris):
+    text = gTTS(text=mesaj_scris, lang='ro')
+    r = random.randint(1, 100000)
+    audio_f = 'fisier-' + str(r) + '.mp3'
+    text.save(audio_f)
+    playsound(audio_f)
+    print(mesaj_scris)
+    os.remove(audio_f)
 
 def inregistrare_joc():
     with sr.Microphone() as microfon:
@@ -70,8 +80,8 @@ def locatie(locatie_steag):
 
 
 def raspunsuri(voce_inregistrata):
-    if 'Cine ești tu' in voce_inregistrata:
-        print("Eu sunt asistentul tău personal")
+    if 'cine ești tu' in voce_inregistrata:
+        voce_bot("Eu sunt asistentul tău personal!")
 
     if 'Cât este ceasul' in voce_inregistrata:
         print(ctime())
@@ -95,7 +105,8 @@ def raspunsuri(voce_inregistrata):
             while locatie_steag == 'America de Sud':
                 locatie(locatie_steag)
                 break
-                
+
 
 voce_inregistrata = inregistrare_audio()
 raspunsuri(voce_inregistrata)
+  
