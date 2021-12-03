@@ -46,9 +46,9 @@ def inregistrare_joc():
 
 def voce_bot(mesaj_scris):
     engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-    engine.setProperty('voice', voices[1].id)
-    engine.setProperty('rate',130)
+    voce = engine.getProperty('voices')
+    engine.setProperty('voice', voce[1].id)
+    engine.setProperty('rate',150)
     engine.say(mesaj_scris)
     print(mesaj_scris)
     engine.runAndWait()
@@ -71,12 +71,12 @@ def locatie(locatie_steag):
             voce_bot('Foarte bine!\n---------------------\n\n')
             punctaj += 1
         else:
-            voce_bot("Raspuns gresit!")
-            print("Raspuns corect:", steaguri[steag].split("\\")[1])
+            voce_bot("Răspuns greșit!")
+            print("Răspuns corect:", steaguri[steag].split("\\")[1])
         print(f"Scorul tău este: {punctaj}/{nr_cuvinte}" )
     voce_bot(f"Scorul tău este: {punctaj} din {nr_cuvinte}" )
 
-def countdown(secunde):
+def temporizator(secunde):
     while secunde>0:
         print(secunde)
         secunde -= 1
@@ -87,7 +87,8 @@ def countdown(secunde):
         playsound('ding.wav')
         t += 1
 
-def set_coutdown():
+def set_temporizator():
+    voce_bot('Stabilire timpi:')
     minute = inregistrare_audio('Câte minute?')
     if 'zero' in minute :
         minute = 0
@@ -139,9 +140,11 @@ def set_coutdown():
     secunde = int(secunde)
     secunde_totale = minute + secunde
     voce_bot(f'Timpul setat este de {int(minute/60)} minute și {secunde} secunde')
+    voce_bot('Începe cronometrarea!')
     return secunde_totale
 
 def raspunsuri(voce_inregistrata):
+
     if  str.lower(voce_inregistrata) == 'cât este ceasul' or str.lower(voce_inregistrata) == 'ce oră este':
         timp = datetime.datetime.fromtimestamp(os.path.getmtime(__file__))
         voce_bot(timp.strftime("%H:%M"))
@@ -150,15 +153,27 @@ def raspunsuri(voce_inregistrata):
         timp = datetime.datetime.fromtimestamp(os.path.getmtime(__file__))
         voce_bot(timp.strftime("%d %m %Y"))
 
-    if 'caută' in str.lower(voce_inregistrata):
+    if 'google' in str.lower(voce_inregistrata):
         caută = inregistrare_audio('Ce vrei să caut?')
-        kit.search(f"{caută}")
+        i = 0
+        while caută == '':
+            if i < 3:
+                caută = inregistrare_audio('Ce vrei să caut?')
+                i += 1
+        else: 
+            kit.search(f"{caută}")
 
-    if 'muzică' in str.lower(voce_inregistrata):
-        muzica = inregistrare_audio('Ce melodie?')
-        kit.playonyt(f"{muzica}")
+    if 'muzică' in str.lower(voce_inregistrata) or 'youtube' in str.lower(voce_inregistrata) :
+        muzica = inregistrare_audio('Ce vrei să caut?')
+        i = 0
+        while muzica == '':
+            if i < 3:
+                muzica = inregistrare_audio('Ce vrei să caut?')
+                i += 1
+        else:
+            kit.playonyt(f"{muzica}")
 
-    if 'informații' in str.lower(voce_inregistrata):
+    if 'informații' in str.lower(voce_inregistrata) or 'wikipedia' in str.lower(voce_inregistrata) :
         wikipedia.set_lang("ro")
         try:
             subiect = inregistrare_audio("Ce subiect?")
@@ -172,21 +187,37 @@ def raspunsuri(voce_inregistrata):
             locatie_steag = inregistrare_audio('Steaguri din regiunea:\n 1.Europa \n 2.America de Nord \n 3.America de Sud')
             while locatie_steag == 'Europa':
                 locatie(locatie_steag)
-                break
+                quit()
             while locatie_steag == 'America de Nord':
                 locatie(locatie_steag)
-                break    
+                quit()    
             while locatie_steag == 'America de Sud':
                 locatie(locatie_steag)
-                break
+                quit()
     
-    if 'cronometru' in str.lower(voce_inregistrata):
-        secunde_totale = set_coutdown()
+    if 'temporizator' in str.lower(voce_inregistrata):
+        secunde_totale = set_temporizator()
         cronometru = secunde_totale
-        countdown(cronometru)
+        temporizator(cronometru)
+
+def ascultare():
+    with sr.Microphone() as microfon:
+        voce_inregistrata = ''
+        try:
+            date_audio = inregistrare.listen(microfon)
+            voce_inregistrata = inregistrare.recognize_google(date_audio, language='ro-Ro')
+            print(voce_inregistrata)
+        except sr.UnknownValueError:
+            voce_bot('')
+        except sr.RequestError:
+            voce_bot('Momentan indisponibil!')
+        return voce_inregistrata
+
+while 1:
+    if 'hei' in str.lower(ascultare()):
+        time.sleep(1)
+        voce_bot('Cu ce te pot ajuta?')
+        voce_inregistrata = inregistrare_audio()
+        raspunsuri(voce_inregistrata)
 
 
-time.sleep(1)
-voce_bot('Cu ce te pot ajuta?')
-voce_inregistrata = inregistrare_audio()
-raspunsuri(voce_inregistrata)
