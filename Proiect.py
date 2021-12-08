@@ -3,7 +3,7 @@ import os
 from glob import glob
 import time
 import speech_recognition as sr
-from random import shuffle
+from random import shuffle, choice
 from playsound import playsound
 import datetime
 import pywhatkit as kit
@@ -21,7 +21,7 @@ def inregistrare_audio(caută=False):
         playsound("Start.wav")
         voce_inregistrata = ''
         try:
-            date_audio = inregistrare.listen(microfon, 10, 10)
+            date_audio = inregistrare.listen(microfon,phrase_time_limit=5)
             voce_inregistrata = inregistrare.recognize_google(date_audio, language='ro-Ro')
             print(voce_inregistrata)
         except sr.UnknownValueError:
@@ -32,7 +32,7 @@ def inregistrare_audio(caută=False):
 
 def inregistrare_joc():
     with sr.Microphone() as microfon:
-        print('\nCare este tara?')
+        voce_bot('\nCare este tara?')
         audio = inregistrare.record(microfon, duration=5)
     try:
         text = inregistrare.recognize_google(audio, language='ro-RO')
@@ -143,9 +143,36 @@ def set_temporizator():
     voce_bot('Începe cronometrarea!')
     return secunde_totale
 
-def raspunsuri(voce_inregistrata):
+def ghiceste_cuvant():
+    cuvinte = ["stern"]
+    cuvant_ales = choice(cuvinte)
+    litera_folosita = []
+    afisare = cuvant_ales
+    for i in range (len(afisare)):
+        afisare = afisare[0:i] + "_" + afisare[i+1:]
+    print (" ".join(afisare))
+    incercari = 0
+    while afisare != cuvant_ales:
+        ghicita = inregistrare_audio("Spune litera: ")
+        ghicita = ghicita.lower()
+        print(ghicita)
+        litera_folosita.extend(ghicita)
+        print(litera_folosita)
+        print ("incercari: ")
+        print (incercari)
+    for i in range(len(cuvant_ales)):
+        if cuvant_ales[i] == ghicita:
+            afisare = afisare[0:i] + ghicita + afisare[i+1:]
 
-    if  str.lower(voce_inregistrata) == 'cât este ceasul' or str.lower(voce_inregistrata) == 'ce oră este':
+    print("litera_folosita letters: ")
+    print(litera_folosita)
+
+    print(" ".join(afisare))
+    incercari = incercari + 1
+    print("Foarte bine, ai ghicit!")
+
+def raspunsuri(voce_inregistrata):
+    if  'ceasul' in str.lower(voce_inregistrata)  or 'ora' in str.lower(voce_inregistrata) or 'oră' in str.lower(voce_inregistrata) :
         timp = datetime.datetime.fromtimestamp(os.path.getmtime(__file__))
         voce_bot(timp.strftime("%H:%M"))
     
@@ -154,24 +181,20 @@ def raspunsuri(voce_inregistrata):
         voce_bot(timp.strftime("%d %m %Y"))
 
     if 'google' in str.lower(voce_inregistrata):
-        caută = inregistrare_audio('Ce vrei să caut?')
-        i = 0
-        while caută == '':
-            if i < 3:
-                caută = inregistrare_audio('Ce vrei să caut?')
-                i += 1
-        else: 
-            kit.search(f"{caută}")
+        text = voce_inregistrata
+        text = str(text)
+        cuvant = text.split().index('google')
+        cuvant2 = text.split()[cuvant + 1:]
+        cuvant_cheie = ' '.join(map(str,cuvant2))
+        kit.search(cuvant_cheie)
 
-    if 'muzică' in str.lower(voce_inregistrata) or 'youtube' in str.lower(voce_inregistrata) :
-        muzica = inregistrare_audio('Ce vrei să caut?')
-        i = 0
-        while muzica == '':
-            if i < 3:
-                muzica = inregistrare_audio('Ce vrei să caut?')
-                i += 1
-        else:
-            kit.playonyt(f"{muzica}")
+    if  'youtube' in str.lower(voce_inregistrata):
+        text_yt = voce_inregistrata
+        text_yt = str(text_yt)
+        cuvant_yt = text_yt.split().index('youtube')
+        cuvant2_yt = text_yt.split()[cuvant_yt + 1:]
+        cuvant_cheie_yt = ' '.join(map(str,cuvant2_yt))
+        kit.playonyt(cuvant_cheie_yt)
 
     if 'informații' in str.lower(voce_inregistrata) or 'wikipedia' in str.lower(voce_inregistrata) :
         wikipedia.set_lang("ro")
@@ -181,10 +204,11 @@ def raspunsuri(voce_inregistrata):
         except:
             voce_bot("Scuze, nu am găsit rezultate pentru acest subiect!")
 
-    if 'vreau să mă joc' in str.lower(voce_inregistrata):
-        joc = inregistrare_audio('Ce joc?\n Alege din următoarele jocuri: \n1.Ghicește steagul \n2.Ghicește numărul')
-        if joc == 'Ghicește steagul':
-            locatie_steag = inregistrare_audio('Steaguri din regiunea:\n 1.Europa \n 2.America de Nord \n 3.America de Sud')
+    if 'vreau să mă joc' in str.lower(voce_inregistrata) or 'joc' in str.lower(voce_inregistrata):
+        joc = inregistrare_audio('Alege din următoarele jocuri: \n1.Ghicește steagul; \n2.Ghicește cuvântul;')
+        if 'Ghicește steagul' in joc or 'unu' in joc:
+            voce_bot("Bine ai venit la jocul - Ghicește steagul! În acest joc trebuie să ghicești stagurile tărilor având ca timp 5 secunde pentru fiecare steag! Alege regiunea de unde dorești steagurile:")
+            locatie_steag = inregistrare_audio('\n 1.Europa \n 2.America de Nord \n 3.America de Sud')
             while locatie_steag == 'Europa':
                 locatie(locatie_steag)
                 quit()
@@ -194,30 +218,75 @@ def raspunsuri(voce_inregistrata):
             while locatie_steag == 'America de Sud':
                 locatie(locatie_steag)
                 quit()
-    
+        if 'Ghicește cuvântul' in joc or 'doi' in joc:
+            ghiceste_cuvant()
+
     if 'temporizator' in str.lower(voce_inregistrata):
         secunde_totale = set_temporizator()
         cronometru = secunde_totale
         temporizator(cronometru)
 
-def ascultare():
-    with sr.Microphone() as microfon:
-        voce_inregistrata = ''
-        try:
-            date_audio = inregistrare.listen(microfon)
-            voce_inregistrata = inregistrare.recognize_google(date_audio, language='ro-Ro')
-            print(voce_inregistrata)
-        except sr.UnknownValueError:
-            voce_bot('')
-        except sr.RequestError:
-            voce_bot('Momentan indisponibil!')
-        return voce_inregistrata
+    if 'listă' in str.lower(voce_inregistrata):
+        lista()
 
-while 1:
-    if 'hei' in str.lower(ascultare()):
-        time.sleep(1)
-        voce_bot('Cu ce te pot ajuta?')
-        voce_inregistrata = inregistrare_audio()
-        raspunsuri(voce_inregistrata)
+def deschidere_aplicatii(voce_inregistrata):
 
+    if 'chrome' in str.lower(voce_inregistrata) or 'google chrome' in str.lower(voce_inregistrata):
+        voce_bot("Se deschide, Google Chrome!")
+        os.startfile("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+        return
 
+    elif "word" in str.lower(voce_inregistrata):
+        voce_bot("Se deschide, Microsoft Word!")
+        os.startfile('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Microsoft Office\Microsoft Word 2010.lnk')
+        return
+    
+    elif 'camera' in str.lower(voce_inregistrata):
+        voce_bot("Se deschide camera!")
+        os.system('start explorer shell:appsfolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App')
+
+    elif 'calendar' in str.lower(voce_inregistrata):
+        voce_bot("Se deschide calendarul!")
+        os.system('start explorer shell:appsfolder\microsoft.windowscommunicationsapps_8wekyb3d8bbwe!microsoft.w...')    
+    
+    else:
+        voce_bot("Aplicația nu este disponibilă!")
+        return
+    
+
+def lista():
+    adresa = 'D:\Documente\Facultate\Anul 3\Programare Python\Proiect\Liste'
+    nume_lista = inregistrare_audio("Denumire listă")
+    nume_complet = os.path.join(adresa, nume_lista +".txt") 
+    f = open(nume_complet,"w",encoding="utf-8")
+    for i in range(1,100000):
+        ingrediente = inregistrare_audio(f'Item {i}')
+        if ingrediente != "listă finalizată":
+            nume = (f"{i}: {ingrediente} \n")
+            f.write(nume)
+        else:
+            break
+    f.close()
+
+if __name__ == "__main__":
+    voce_bot("Care este numele tău, Omule?")
+    nume ='Omule'
+    nume = inregistrare_audio()
+    voce_bot("Salut, " + nume + '.')
+      
+    while(1):
+  
+        voce_bot("Ce pot face pentru tine?")
+        voce_inregistrata = inregistrare_audio().lower()
+
+        if 'deschide' in str.lower(voce_inregistrata):
+            deschidere_aplicatii(voce_inregistrata)
+        else:
+            raspunsuri(voce_inregistrata)
+        
+        if voce_inregistrata == 0:
+            continue
+  
+        if "gata" in voce_inregistrata:
+            voce_bot("La revedere, "+ nume +'.')
+            break
