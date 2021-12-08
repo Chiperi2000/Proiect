@@ -144,32 +144,64 @@ def set_temporizator():
     return secunde_totale
 
 def ghiceste_cuvant():
-    cuvinte = ["stern"]
-    cuvant_ales = choice(cuvinte)
+    voce_bot("Bine ai venit la jocul - Ghicește cuvântul!\nTrebuie să îți alegi o categorie din care să facă parte!\n Categorii disponibile:\nBiologie\nInginerie Electrică")
+    categorie_aleasa = inregistrare_audio("Spune ce categorie")
+    categorii = ['biologie','inginerie electrică']
+    biologie = ["eucariot","autotrof","tegmentum","biotrof","oligotrof","hematologie","hipofiza"]
+    inginerie_electrica = ["rezistor","condensator","bobina","tensiune","curent",""]
+    categorie = ''
+    if categorie_aleasa in categorii:
+        if categorie_aleasa == 'biologie':
+            categorie=biologie
+        if categorie_aleasa == 'Inginerie Electrică':
+            categorie=inginerie_electrica
+    else:
+        voce_bot("Nu exsită această categorie!")
+        return(ghiceste_cuvant())
+    voce_bot(f'Ai ales categoria {categorie_aleasa}\nMult succes!')
+    cuvant_ales = choice(categorie)
+    print("Cuvantul ales este:", cuvant_ales)
     litera_folosita = []
     afisare = cuvant_ales
     for i in range (len(afisare)):
         afisare = afisare[0:i] + "_" + afisare[i+1:]
+
     print (" ".join(afisare))
-    incercari = 0
+    incercari = 1
     while afisare != cuvant_ales:
         ghicita = inregistrare_audio("Spune litera: ")
-        ghicita = ghicita.lower()
+        if 'litera e' in ghicita or 'litera i' in ghicita:
+            litera_confirmare = inregistrare_audio("Litera e, și litera i se aseamăna foarte mult în pronunție \n Daca dorești litera i spune unu \n Daca dorești litera e spune doi")
+            ghicita_conf = '0'
+            while ghicita_conf == '0':
+                if '1' in litera_confirmare or 'unu' in litera_confirmare:
+                    ghicita = 'litera i'
+                    ghicita_conf = '1'
+                elif '2' in litera_confirmare or 'doi' in litera_confirmare:
+                    ghicita = 'litera e'
+                    ghicita_conf = '1'
+                else:
+                    voce_bot("Nu este una din variante!")
+        ghicita = str(ghicita)
+        litera = ghicita.split().index('litera')
+        litera2 = ghicita.split()[litera + 1:]
+        litera_cheie = ' '.join(map(str,litera2))
+        ghicita = litera_cheie.lower()
         print(ghicita)
         litera_folosita.extend(ghicita)
         print(litera_folosita)
         print ("incercari: ")
         print (incercari)
-    for i in range(len(cuvant_ales)):
-        if cuvant_ales[i] == ghicita:
-            afisare = afisare[0:i] + ghicita + afisare[i+1:]
+        for i in range(len(cuvant_ales)):
+            if cuvant_ales[i] == ghicita:
+                afisare = afisare[0:i] + ghicita + afisare[i+1:]
 
-    print("litera_folosita letters: ")
-    print(litera_folosita)
-
-    print(" ".join(afisare))
-    incercari = incercari + 1
-    print("Foarte bine, ai ghicit!")
+        print("Litere folosite: \n", litera_folosita)
+    
+        print(" ".join(afisare))
+        incercari = incercari + 1
+    voce_bot("Foarte bine, ai ghicit!")
+    voce_bot(f"Cuvântul a fost: {cuvant_ales}")
 
 def raspunsuri(voce_inregistrata):
     if  'ceasul' in str.lower(voce_inregistrata)  or 'ora' in str.lower(voce_inregistrata) or 'oră' in str.lower(voce_inregistrata) :
@@ -243,12 +275,7 @@ def deschidere_aplicatii(voce_inregistrata):
     
     elif 'camera' in str.lower(voce_inregistrata):
         voce_bot("Se deschide camera!")
-        os.system('start explorer shell:appsfolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App')
-
-    elif 'calendar' in str.lower(voce_inregistrata):
-        voce_bot("Se deschide calendarul!")
-        os.system('start explorer shell:appsfolder\microsoft.windowscommunicationsapps_8wekyb3d8bbwe!microsoft.w...')    
-    
+        os.system('start explorer shell:appsfolder\Microsoft.WindowsCamera_8wekyb3d8bbwe!App')    
     else:
         voce_bot("Aplicația nu este disponibilă!")
         return
@@ -260,7 +287,7 @@ def lista():
     nume_complet = os.path.join(adresa, nume_lista +".txt") 
     f = open(nume_complet,"w",encoding="utf-8")
     for i in range(1,100000):
-        ingrediente = inregistrare_audio(f'Item {i}')
+        ingrediente = inregistrare_audio(f'{i}')
         if ingrediente != "listă finalizată":
             nume = (f"{i}: {ingrediente} \n")
             f.write(nume)
@@ -269,8 +296,7 @@ def lista():
     f.close()
 
 if __name__ == "__main__":
-    voce_bot("Care este numele tău, Omule?")
-    nume ='Omule'
+    voce_bot("Salut!Eu sunt Andrei, asistentul tău virtual. \nNumele tău care este?")
     nume = inregistrare_audio()
     voce_bot("Salut, " + nume + '.')
       

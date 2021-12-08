@@ -41,31 +41,49 @@ def inregistrare_audio(caută=False):
 
 
 def ghiceste_cuvant():
-    # voce_bot("Bine ai venit la jocul - Ghicește cuvântul!\nTrebuie să îți alegi o categorie din care să facă parte!\n Categorii disponibile:\nBiologie\nIstorie")
+    voce_bot("Bine ai venit la jocul - Ghicește cuvântul!\nTrebuie să îți alegi o categorie din care să facă parte!\n Categorii disponibile:\nBiologie\nInginerie Electrică")
     categorie_aleasa = inregistrare_audio("Spune ce categorie")
-    voce_bot(f'Ai ales categoria {categorie_aleasa}\nMult succes!')
-    categorii = ['biologie','istorie']
-    biologie = ["muschi croitor"]
-    istorie = ["mihai"]
+    categorii = ['biologie','inginerie electrică']
+    biologie = ["eucariot","autotrof","tegmentum","biotrof","oligotrof","hematologie","hipofiza"]
+    inginerie_electrica = ["rezistor","condensator","bobina","tensiune","curent",""]
     categorie = ''
-    if categorie_aleasa not in categorii:
-        voce_bot("Nu exsită această categorie!")
-    else:
+    if categorie_aleasa in categorii:
         if categorie_aleasa == 'biologie':
             categorie=biologie
-        if categorie_aleasa == 'istorie':
-            categorie=istorie
-
+        if categorie_aleasa == 'Inginerie Electrică':
+            categorie=inginerie_electrica
+    else:
+        voce_bot("Nu exsită această categorie!")
+        return(ghiceste_cuvant())
+    voce_bot(f'Ai ales categoria {categorie_aleasa}\nMult succes!')
     cuvant_ales = choice(categorie)
+    print("Cuvantul ales este:", cuvant_ales)
     litera_folosita = []
     afisare = cuvant_ales
     for i in range (len(afisare)):
         afisare = afisare[0:i] + "_" + afisare[i+1:]
+
     print (" ".join(afisare))
     incercari = 1
     while afisare != cuvant_ales:
         ghicita = inregistrare_audio("Spune litera: ")
-        ghicita = ghicita.lower()
+        if 'litera e' in ghicita or 'litera i' in ghicita:
+            litera_confirmare = inregistrare_audio("Litera e, și litera i se aseamăna foarte mult în pronunție \n Daca dorești litera i spune unu \n Daca dorești litera e spune doi")
+            ghicita_conf = '0'
+            while ghicita_conf == '0':
+                if '1' in litera_confirmare or 'unu' in litera_confirmare:
+                    ghicita = 'litera i'
+                    ghicita_conf = '1'
+                elif '2' in litera_confirmare or 'doi' in litera_confirmare:
+                    ghicita = 'litera e'
+                    ghicita_conf = '1'
+                else:
+                    voce_bot("Nu este una din variante!")
+        ghicita = str(ghicita)
+        litera = ghicita.split().index('litera')
+        litera2 = ghicita.split()[litera + 1:]
+        litera_cheie = ' '.join(map(str,litera2))
+        ghicita = litera_cheie.lower()
         print(ghicita)
         litera_folosita.extend(ghicita)
         print(litera_folosita)
@@ -75,8 +93,7 @@ def ghiceste_cuvant():
             if cuvant_ales[i] == ghicita:
                 afisare = afisare[0:i] + ghicita + afisare[i+1:]
 
-        print("litera_folosita letters: ")
-        print(litera_folosita)
+        print("Litere folosite: \n", litera_folosita)
     
         print(" ".join(afisare))
         incercari = incercari + 1

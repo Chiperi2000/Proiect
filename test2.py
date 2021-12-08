@@ -1,9 +1,13 @@
-import wolframalpha
+from random import shuffle, choice
 
-client = wolframalpha.Client('HE5YX8-WQJ3EE6W28')
+biologie = ['mana dreapta']
+cuvant_ales = choice(biologie)
+print(cuvant_ales)
 
-while True:
-    query = str(input('Query: '))
-    res = client.query(query)
-    output = next(res.results).text
-    print(output)
+afisare = cuvant_ales
+cuvant_ales2=(len(cuvant_ales) - cuvant_ales.count(' '))
+
+for i in range (len(afisare)):
+        afisare = afisare[0:i] + "_" + afisare[i+1:]
+
+print (" ".join(afisare))
